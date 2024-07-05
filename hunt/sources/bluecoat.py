@@ -1,0 +1,47 @@
+import asyncio
+import os
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from hunt import config
+
+
+class BluecoatRequestData:
+    base_url = 'https://sitereview.bluecoat.com/#/'
+    name = 'bluecoat'
+    
+    def __init__(self):
+        service = Service(config.CHROMEDRIVER_PATH)
+        
+        if os.name == 'nt':
+            self.driver = webdriver.Chrome(service=service)
+        else:
+            self.driver = webdriver.Chrome()
+    
+
+    async def check(self, target_domain):
+        category = 'N/A'
+        
+        self.driver.get(self.base_url)
+        self.driver.find_element(By.ID, 'txtUrl').send_keys(target_domain)
+        self.driver.find_element(By.ID, 'btnLookup').click()
+        
+        await asyncio.sleep(3)
+        
+        try:
+            category_first = self.driver.find_element(By.XPATH, '//*[@id="submissionForm"]/span/span[1]/div/div[2]/span[1]/span')
+            category_second = self.driver.find_element(By.XPATH, '//*[@id="submissionForm"]/span/span[1]/div/div[2]/span[2]/span')
+            if category_second:
+                if 'Last Time' in category_second.text:
+                    category = category_first.text
+                else:
+                    category = category_first.text + '|' + category_second.text
+            else:
+                category = category_first.text
+        except:
+            category = 'error'
+
+        return {
+            'name': self.name,
+            'category': category,
+        }
