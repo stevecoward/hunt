@@ -25,35 +25,33 @@ python hunt.py init
 
 ## Commands
 
-Hunt provides a number of commands to lookup and manage domain categorizations:
+Hunt provides a number of commands to lookup domain categorizations:
 
 ### init
 
 This establishes a folder on disk where the hunt database is stored. For Windows, the location is in `%LOCALAPPDATA%\hunt`, for POSIX systems, the location is `~\.hunt`. A SQLite database file is created in this directory, which contains two tables: `domains` and `domaincategorizations`. This command considers the utility initialized if a non-zero byte SQLite database is present in the data directory. If any command is run, it checks for this file and exits unless the file exists.
 
 
-### lookup
+### get-categorizations
 
 This is the main component of the tool. It accepts a domain name and some boolean options for which categorization sites to check:
 
 ```
-usage: hunt.py lookup [-h] -d DOMAIN [-a] [-i] [-t] [-m] [-b]
+Usage: hunt.py command get-categorizations [OPTIONS] DOMAIN
 
-options:
-  -h, --help            show this help message and exit
-  -d DOMAIN, --domain DOMAIN
-                        domain to check
-  -a, --all             check with all
-  -i, --ibm             check ibm x-force
-  -t, --trendmicro      check trendmicro
-  -m, --mcafee          check mcafee
-  -b, --bluecoat        check bluecoat
+Options:
+  -a, --all-cats    Check with all providers
+  -i, --ibm         Check IBM X-Force
+  -t, --trendmicro  Check Trendmicro
+  -m, --mcafee      Check McAfee
+  -b, --bluecoat    Check Bluecoat
+  --help            Show this message and exit.
 ```
 
 On the backend, asynchronous tasks are created for each selected (or all) categorization sites, and hunt performs scraping of data and returns the results as a table:
 
 ```
-> python hunt.py lookup -d intuit.com -a
+> python hunt.py command get-categorizations intuit.com -a
 
                                Recent Categorizations
 ┏━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
@@ -65,23 +63,40 @@ On the backend, asynchronous tasks are created for each selected (or all) catego
 └────────────┴────────────┴──────────────────────────────────┴─────────────────────┘
 ```
 
-### retrieve
+### get-add-domain
+
+This command adds a domain to the database. It takes a name, optional registrar, and a tag with the default set of options defined in the `tag` command:
+
+```
+Usage: hunt.py command get-add-domain [OPTIONS] DOMAIN [REGISTRAR] TAG
+
+Options:
+  --help  Show this message and exit.
+```
+
+### refresh
+
+This command takes each stored domain in the database and performs domain categorization checks against all available categorization services. The output of the command retrieves the last 10 categorization records stored in the database.
+
+## Queries
+
+Hunt provides a number of commands to query the database for information:
+
+### domain-categories
 
 This command retrieves all historical domain categorizations for a given domain:
 
 ```
-usage: hunt.py retrieve [-h] -d DOMAIN
+Usage: hunt.py query domain-categories [OPTIONS] DOMAIN
 
-options:
-  -h, --help            show this help message and exit
-  -d DOMAIN, --domain DOMAIN
-                        domain to retrieve
+Options:
+  --help  Show this message and exit.
 ```
 
-The output is a table similar to the `lookup` command:
+The output is a table similar to the `get-categorizations` command:
 
 ```
-> python hunt.py retrieve -d intuit.com
+> python hunt.py query domain-categories intuit.com
 
                     Categorizations for: intuit.com
 ┏━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
@@ -101,26 +116,6 @@ This command returns any stored domains with a specified tag. The available tags
 
 This command returns the last 10 domain categorizations stored in the database.
 
-### domain
-
-This command adds a domain to the database. It takes a name, optional registrar, and a tag with the default set of options defined in the `tag` command:
-
-```
-usage: hunt.py domain [-h] -d DOMAIN [-r REGISTRAR] -t {phish,c2,landing,misc}
-
-options:
-  -h, --help            show this help message and exit
-  -d DOMAIN, --domain DOMAIN
-                        domain to retrieve
-  -r REGISTRAR, --registrar REGISTRAR
-                        domain registrar
-  -t {phish,c2,landing,misc}, --tag {phish,c2,landing,misc}
-                        tag to apply
-```
-
-### refresh
-
-This command takes each stored domain in the database and performs domain categorization checks against all available categorization services. The output of the command retrieves the last 10 categorization records stored in the database.
 
 ## Adding New Categorization Services
 
@@ -180,10 +175,10 @@ if all or categorizationsite:
 Next, modify `hunt.py` and add to the argument parser:
 
 ```python
-parser_lookup.add_argument('-c', '--categorizationsite', action='store_true', default=False, help='check Categorization Site')
+@click.option('-c', '--categorizationsite', is_flag=True, default=False, help='Check Categorization Site')
 
-if args.command == 'lookup':
-    categorization_lookup_options = [args.all, args.ibm, args.trendmicro, args.mcafee, args.categorizationsite]
+def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat, categorizationsite):
+    categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat, categorizationsite]
 ```
 
 With these changes, a new categorization site can be added to the project and can be called from the utility.

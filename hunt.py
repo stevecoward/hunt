@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import asyncio
+import click
 import sys
 from hunt.helpers import is_initialized
 from hunt.helpers.domain import DomainHelper
@@ -10,70 +11,104 @@ from hunt.models.domain import Domain
 from hunt.utils.hunt_db import HuntDb
 
 
-if __name__ == '__main__':    
-    parser = argparse.ArgumentParser(description='check a domain across multiple categorization services')
-    subparsers = parser.add_subparsers(dest='command', required=True)
-    
-    # init command args
-    parser_init = subparsers.add_parser('init', help="initialize hunt database")
-    
-    # lookup command args
-    parser_lookup = subparsers.add_parser('lookup', help='lookup a domain')
-    parser_lookup.add_argument('-d', '--domain', required=True, help='domain to check')
-    parser_lookup.add_argument('-a', '--all', action='store_true', default=False, help='check with all')
-    parser_lookup.add_argument('-i', '--ibm', action='store_true', default=False, help='check ibm x-force')
-    parser_lookup.add_argument('-t', '--trendmicro', action='store_true', default=False, help='check trendmicro')
-    parser_lookup.add_argument('-m', '--mcafee', action='store_true', default=False, help='check mcafee')
-    parser_lookup.add_argument('-b', '--bluecoat', action='store_true', default=False, help='check bluecoat')
-    
-    # retrieve command args
-    parser_retrieve = subparsers.add_parser('retrieve', help="retrieve categorization results for a domain")
-    parser_retrieve.add_argument('-d', '--domain', required=True, help="domain to retrieve")
-        
-    # tag command args
-    parser_tag = subparsers.add_parser('tag', help="get stored domains by tag")
-    parser_tag.add_argument('-n', '--name', required=True, help="tag to retrieve")
-    
-    # recent command args
-    parser_recent = subparsers.add_parser('recent', help="get recent records")
-    
-    # domain command args
-    parser_domain = subparsers.add_parser('domain', help="manage domains in database")
-    parser_domain.add_argument('-d', '--domain', required=True, help="domain to retrieve")
-    parser_domain.add_argument('-r', '--registrar', help="domain registrar")
-    parser_domain.add_argument('-t', '--tag', choices=['phish', 'c2', 'landing', 'misc'], required=True, help="tag to apply")
-    
-    # recent command args
-    parser_refresh = subparsers.add_parser('refresh', help="refresh lookup records")
+def validate_tag_choices(ctx, param, value):
+    tags = ['c2','phish','landing','misc']
+    if value not in tags:
+        raise click.BadParameter(f'please select from the following tags: {", ".join(tags)}')
+    return value
 
-    args = parser.parse_args()
-    
-    if args.command == 'init':
-        hunt_db = HuntDb()
-        hunt_db.setup()
-        sys.exit(0)
-    
+
+def check_initialized(ctx, param, value):
     if not is_initialized():
-        sys.exit(-1)
-    
-    if args.command == 'lookup':
-        categorization_lookup_options = [args.all, args.ibm, args.trendmicro, args.mcafee, args.bluecoat]
-        if all(not option for option in categorization_lookup_options):
-            print('Please select a categorization site option or choose --all')
-            sys.exit(-1)
-        asyncio.run(LookupHelper.lookup(args.domain, categorization_lookup_options))
-    
-    if args.command == 'retrieve':
-        results = DomainCategorizationHelper.get_by_domain(args.domain, table=True)
-        
-    if args.command == 'tag':
-        results = DomainHelper.get_by_tag(args.name, table=True)
+        raise click.UsageError('hunt is not initialized. please run "command init" first.')
+    return value
 
-    if args.command == 'recent':
-        results = DomainHelper.get_recent(table=True)
-    
-    if args.command == 'domain':
-        domain_record, created = Domain.get_or_create(domain=args.domain, registrar=args.registrar or '', tag=args.tag)
-    
-    if args.command == 'refresh':
-        DomainCategorizationHelper.refresh()
+
+@click.group()
+@click.pass_context
+def cli(ctx):
+    pass
+
+
+@click.group()
+def command():
+    pass
+
+
+@click.command()
+def init():
+    hunt_db = HuntDb()
+    hunt_db.setup()
+    sys.exit(0)
+
+
+@click.command()
+@click.argument('domain', required=True)
+@click.argument('registrar', required=False, default='')
+@click.argument('tag', required=True, callback=validate_tag_choices)
+@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
+def get_add_domain(domain, registrar, tag):
+    Domain.get_or_create(domain=domain, registrar=registrar, tag=tag)
+
+
+@click.command()
+def refresh():
+    DomainCategorizationHelper.refresh()
+
+
+@click.command()
+@click.argument('domain', required=True)
+@click.option('-a', '--all-cats', is_flag=True, default=False, help='Check with all providers')
+@click.option('-i', '--ibm', is_flag=True, default=False, help='Check IBM X-Force')
+@click.option('-t', '--trendmicro', is_flag=True, default=False, help='Check Trendmicro')
+@click.option('-m', '--mcafee', is_flag=True, default=False, help='Check McAfee')
+@click.option('-b', '--bluecoat', is_flag=True, default=False, help='Check Bluecoat')
+@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
+def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat):
+    categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat]
+    if all(not option for option in categorization_lookup_options):
+        print('Please select a categorization site option or choose --all')
+        sys.exit(-1)
+    asyncio.run(LookupHelper.lookup(domain, categorization_lookup_options))
+
+
+@click.group()
+def query():
+    pass
+
+
+@click.command()
+@click.argument('domain', required=True)
+@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
+def domain_categories(domain):
+    DomainCategorizationHelper.get_by_domain(domain, table=True)
+
+
+@click.command()
+@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
+def recent():
+    DomainHelper.get_recent(table=True)
+
+
+@click.command()
+@click.argument('name', required=True, callback=validate_tag_choices)
+@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
+def tag(name):
+    DomainHelper.get_by_tag(name, table=True)
+
+
+command.add_command(init)
+command.add_command(get_add_domain)
+command.add_command(refresh)
+command.add_command(get_categorizations)
+
+query.add_command(domain_categories)
+query.add_command(recent)
+query.add_command(tag)
+
+cli.add_command(command)
+cli.add_command(query)
+
+
+if __name__ == '__main__':    
+    cli()

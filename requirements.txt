@@ -1,5 +1,6 @@
 BeautifulSoup4
-peewee
+click
 httpx
+peewee
 rich
 selenium
