@@ -8,7 +8,7 @@ class DomainHelper:
         results = []
         records = Domain.select(Domain.domain, DomainCategorization.source, DomainCategorization.category, DomainCategorization.checked_at)\
             .join(DomainCategorization)\
-            .where(DomainCategorization.category != "").order_by(Domain.id.desc()).limit(10)
+            .where(DomainCategorization.category != "").order_by(DomainCategorization.checked_at.desc()).limit(20)
 
         for record in records:
             results.append({

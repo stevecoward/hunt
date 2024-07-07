@@ -3,25 +3,12 @@ import argparse
 import asyncio
 import click
 import sys
-from hunt.helpers import is_initialized
+from hunt.helpers.click_validators import check_initialized, validate_tag_choices, validate_categorization_providers
 from hunt.helpers.domain import DomainHelper
 from hunt.helpers.domain_categorization import DomainCategorizationHelper
 from hunt.helpers.lookup import LookupHelper
 from hunt.models.domain import Domain
 from hunt.utils.hunt_db import HuntDb
-
-
-def validate_tag_choices(ctx, param, value):
-    tags = ['c2','phish','landing','misc']
-    if value not in tags:
-        raise click.BadParameter(f'please select from the following tags: {", ".join(tags)}')
-    return value
-
-
-def check_initialized(ctx, param, value):
-    if not is_initialized():
-        raise click.UsageError('hunt is not initialized. please run "command init" first.')
-    return value
 
 
 @click.group()
@@ -83,6 +70,13 @@ def query():
 def domain_categories(domain):
     DomainCategorizationHelper.get_by_domain(domain, table=True)
 
+@click.command()
+@click.argument('domain', required=True)
+@click.option('-p', '--provider', prompt='Provider', callback=validate_categorization_providers, help='The provider to filter domain categorizations by')
+@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
+def domain_categories_filter(domain, provider):
+    DomainCategorizationHelper.get_by_domain(domain, provider, table=True)
+
 
 @click.command()
 @click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
@@ -102,6 +96,7 @@ command.add_command(get_add_domain)
 command.add_command(refresh)
 command.add_command(get_categorizations)
 
+query.add_command(domain_categories_filter)
 query.add_command(domain_categories)
 query.add_command(recent)
 query.add_command(tag)

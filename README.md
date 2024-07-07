@@ -108,6 +108,10 @@ The output is a table similar to the `get-categorizations` command:
 └────────────┴──────────────────────────────────┴─────────────────────┘
 ```
 
+### domain-categories-filter
+
+This command takes a domain argument and prompts the user for a categorization provider to filter results by. If the provider name is invalid, a list of options are shown to choose from.
+
 ### tag
 
 This command returns any stored domains with a specified tag. The available tags are 'phish', 'c2', 'landing' and 'misc'
