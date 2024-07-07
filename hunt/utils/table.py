@@ -81,3 +81,24 @@ class TagDomainCategorizationTable(HuntTable):
 
     def __init__(self, title):
         super(TagDomainCategorizationTable, self).__init__(title)
+
+
+class DomainTable(HuntTable):
+    headers = [{
+        'column': 'domain',
+        'attributes': {},
+    }, {
+        'column': 'registrar',
+        'attributes': {},
+    }, {
+        'column': 'tag',
+        'attributes': {},
+    }, {
+        'column': 'status',
+        'attributes': {
+            'style': 'dim',
+        },
+    }]
+
+    def __init__(self, title):
+        super(DomainTable, self).__init__(title)

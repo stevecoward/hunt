@@ -31,11 +31,12 @@ def init():
 
 @click.command()
 @click.argument('domain', required=True)
-@click.argument('registrar', required=False, default='')
 @click.argument('tag', required=True, callback=validate_tag_choices)
+@click.argument('registrar', required=False, default='')
 @click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
-def get_add_domain(domain, registrar, tag):
-    Domain.get_or_create(domain=domain, registrar=registrar, tag=tag)
+def add_domain(domain, tag, registrar):
+    domain_record, created = Domain.get_or_create(domain=domain, registrar=registrar, tag=tag)
+    DomainHelper.get_by_domain(domain_record.domain, table=True)
 
 
 @click.command()
@@ -70,6 +71,7 @@ def query():
 def domain_categories(domain):
     DomainCategorizationHelper.get_by_domain(domain, table=True)
 
+
 @click.command()
 @click.argument('domain', required=True)
 @click.option('-p', '--provider', prompt='Provider', callback=validate_categorization_providers, help='The provider to filter domain categorizations by')
@@ -91,8 +93,15 @@ def tag(name):
     DomainHelper.get_by_tag(name, table=True)
 
 
+@click.command()
+@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
+def get_domains():
+    DomainHelper.get_all(table=True)
+
+
+
 command.add_command(init)
-command.add_command(get_add_domain)
+command.add_command(add_domain)
 command.add_command(refresh)
 command.add_command(get_categorizations)
 
@@ -100,6 +109,7 @@ query.add_command(domain_categories_filter)
 query.add_command(domain_categories)
 query.add_command(recent)
 query.add_command(tag)
+query.add_command(get_domains)
 
 cli.add_command(command)
 cli.add_command(query)

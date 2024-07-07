@@ -63,12 +63,12 @@ On the backend, asynchronous tasks are created for each selected (or all) catego
 └────────────┴────────────┴──────────────────────────────────┴─────────────────────┘
 ```
 
-### get-add-domain
+### add-domain
 
 This command adds a domain to the database. It takes a name, optional registrar, and a tag with the default set of options defined in the `tag` command:
 
 ```
-Usage: hunt.py command get-add-domain [OPTIONS] DOMAIN [REGISTRAR] TAG
+Usage: hunt.py command add-domain [OPTIONS] DOMAIN TAG [REGISTRAR]
 
 Options:
   --help  Show this message and exit.
@@ -119,6 +119,10 @@ This command returns any stored domains with a specified tag. The available tags
 ### recent
 
 This command returns the last 10 domain categorizations stored in the database.
+
+### get-domains
+
+This command returns all stored domains in the database.
 
 
 ## Adding New Categorization Services

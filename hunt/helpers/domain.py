@@ -1,4 +1,4 @@
-from hunt.utils.table import RecentDomainCategorizationTable, TagDomainCategorizationTable
+from hunt.utils.table import RecentDomainCategorizationTable, TagDomainCategorizationTable, DomainTable
 from hunt.models.domain import Domain
 from hunt.models.domain_categorization import DomainCategorization
 
@@ -25,6 +25,7 @@ class DomainHelper:
 
         return results
 
+
     @staticmethod
     def get_by_tag(tag, table=False):
         results = []
@@ -47,7 +48,57 @@ class DomainHelper:
             table.print()
         
         return results
-    
+
+
+    @staticmethod
+    def get_by_domain(domain, table=False):
+        results = []
+
+        records = Domain(Domain.domain, Domain.registrar, Domain.tag, Domain.status)\
+            .select()\
+            .where(Domain.domain == domain)\
+            .order_by(Domain.status)
+
+        for record in records:
+            results.append({
+                'domain': record.domain,
+                'registrar': record.registrar,
+                'tag': record.tag,
+                'status': record.status,
+            })
+        
+        if table:
+            table = DomainTable(f'\nDomains matching name: {domain}')
+            table.add_row(results)
+            table.print()
+        
+        return results
+
+
+    @staticmethod
+    def get_all(table=False):
+        results = []
+
+        records = Domain(Domain.domain, Domain.registrar, Domain.tag, Domain.status)\
+            .select()\
+            .order_by(Domain.domain.desc())
+
+        for record in records:
+            results.append({
+                'domain': record.domain,
+                'registrar': record.registrar,
+                'tag': record.tag,
+                'status': record.status,
+            })
+        
+        if table:
+            table = DomainTable(f'\nAll domains')
+            table.add_row(results)
+            table.print()
+        
+        return results
+
+
     @staticmethod
     def check_add_domain_record(domain, registrar="", tag="", status="N/A"):
         try:
