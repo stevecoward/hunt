@@ -63,9 +63,13 @@ On the backend, asynchronous tasks are created for each selected (or all) catego
 └────────────┴────────────┴──────────────────────────────────┴─────────────────────┘
 ```
 
+### get-from-file
+
+This is the same as `get-categorizations`, only instead of a single domain, a file of domains can be used to perform lookups against.
+
 ### add-domain
 
-This command adds a domain to the database. It takes a name, optional registrar, and a tag with the default set of options defined in the `tag` command:
+This command adds a domain or updates a domain in the database. It takes a name, optional registrar, and a tag with the default set of options defined in the `tag` command:
 
 ```
 Usage: hunt.py command add-domain [OPTIONS] DOMAIN TAG [REGISTRAR]
