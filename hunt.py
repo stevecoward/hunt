@@ -35,7 +35,10 @@ def init():
 @click.argument('registrar', required=False, default='')
 @click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
 def add_domain(domain, tag, registrar):
-    domain_record, created = Domain.get_or_create(domain=domain, registrar=registrar, tag=tag)
+    domain_record, _ = Domain.get_or_create(domain=domain)
+    domain_record.tag = tag
+    domain_record.registrar = registrar
+    domain_record.save()
     DomainHelper.get_by_domain(domain_record.domain, table=True)
 
 
