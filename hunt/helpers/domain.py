@@ -106,4 +106,5 @@ class DomainHelper:
         except Exception as e:
             domain_record = Domain(
                 domain=domain, registrar=registrar, tag=tag, status=status)
-            domain_record.save()        
+            domain_record.save()
+        return domain_record

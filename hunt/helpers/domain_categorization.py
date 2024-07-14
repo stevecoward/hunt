@@ -41,11 +41,11 @@ class DomainCategorizationHelper:
         try:
             domain_record = Domain.get(Domain.domain == domain)
         except Exception as e:
-            DomainHelper.check_add_domain_record(domain)
-        else:
-            cat_record = DomainCategorization(
-                domain_id=domain_record.id, source=source, category=category, checked_at=datetime.now())
-            cat_record.save()
+            domain_record = DomainHelper.check_add_domain_record(domain)
+
+        cat_record = DomainCategorization(
+            domain_id=domain_record.id, source=source, category=category, checked_at=datetime.now())
+        cat_record.save()
 
     @staticmethod
     def refresh():
