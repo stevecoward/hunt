@@ -2,6 +2,7 @@
 import argparse
 import asyncio
 import click
+from functools import wraps
 import sys
 from hunt.helpers.click_validators import check_initialized, validate_tag_choices, validate_categorization_providers
 from hunt.helpers.domain import DomainHelper
@@ -9,6 +10,14 @@ from hunt.helpers.domain_categorization import DomainCategorizationHelper
 from hunt.helpers.lookup import LookupHelper
 from hunt.models.domain import Domain
 from hunt.utils.hunt_db import HuntDb
+
+
+def coro(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(f(*args, **kwargs))
+
+    return wrapper
 
 
 @click.group()
@@ -63,6 +72,30 @@ def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat):
     asyncio.run(LookupHelper.lookup(domain, categorization_lookup_options))
 
 
+@click.command()
+@click.argument('domain-list', type=click.File('r'), required=True)
+@click.option('-a', '--all-cats', is_flag=True, default=False, help='Check with all providers')
+@click.option('-i', '--ibm', is_flag=True, default=False, help='Check IBM X-Force')
+@click.option('-t', '--trendmicro', is_flag=True, default=False, help='Check Trendmicro')
+@click.option('-m', '--mcafee', is_flag=True, default=False, help='Check McAfee')
+@click.option('-b', '--bluecoat', is_flag=True, default=False, help='Check Bluecoat')
+@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
+@coro
+async def get_from_file(domain_list, all_cats, ibm, trendmicro, mcafee, bluecoat):
+    categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat]
+    if all(not option for option in categorization_lookup_options):
+        print('Please select a categorization site option or choose --all')
+        sys.exit(-1)
+    
+    domains = domain_list.read()
+    domains = list(filter(None, domains.split('\n')))
+    tasks = []
+
+    for domain in domains:
+        tasks.append(asyncio.create_task(LookupHelper.lookup(domain, categorization_lookup_options)))
+    await asyncio.gather(*tasks)
+
+
 @click.group()
 def query():
     pass
@@ -107,6 +140,7 @@ command.add_command(init)
 command.add_command(add_domain)
 command.add_command(refresh)
 command.add_command(get_categorizations)
+command.add_command(get_from_file)
 
 query.add_command(domain_categories_filter)
 query.add_command(domain_categories)
