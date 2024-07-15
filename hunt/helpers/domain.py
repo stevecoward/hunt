@@ -41,12 +41,12 @@ class DomainHelper:
                 'registrar': record.registrar,
                 'status': record.status,
             })
-        
+
         if table:
             table = TagDomainCategorizationTable(f'\nDomains having tag: {tag}')
             table.add_row(results)
             table.print()
-        
+
         return results
 
 
@@ -66,12 +66,12 @@ class DomainHelper:
                 'tag': record.tag,
                 'status': record.status,
             })
-        
+
         if table:
             table = DomainTable(f'\nDomains matching name: {domain}')
             table.add_row(results)
             table.print()
-        
+
         return results
 
 
@@ -90,12 +90,12 @@ class DomainHelper:
                 'tag': record.tag,
                 'status': record.status,
             })
-        
+
         if table:
             table = DomainTable(f'\nAll domains')
             table.add_row(results)
             table.print()
-        
+
         return results
 
 

@@ -135,6 +135,13 @@ def get_domains():
     DomainHelper.get_all(table=True)
 
 
+@click.command()
+@click.argument('domain', required=True)
+@click.option('-p', '--provider', required=False, help='The provider to filter domain categorizations by')
+@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
+def export(domain, provider=None):
+    DomainCategorizationHelper.export(domain, provider)
+
 
 command.add_command(init)
 command.add_command(add_domain)
@@ -147,6 +154,7 @@ query.add_command(domain_categories)
 query.add_command(recent)
 query.add_command(tag)
 query.add_command(get_domains)
+query.add_command(export)
 
 cli.add_command(command)
 cli.add_command(query)

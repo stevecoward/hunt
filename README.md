@@ -128,6 +128,35 @@ This command returns the last 10 domain categorizations stored in the database.
 
 This command returns all stored domains in the database.
 
+### export
+
+This command exports domain categorization records. if 'all' is supplied as the domain value, all stored domain categorizations are exported. An optional parameter '-p' allows you to supply a provider to filter results by:
+
+```
+Usage: hunt.py query export [OPTIONS] DOMAIN
+
+Options:
+  -p, --provider TEXT  The provider to filter domain categorizations by
+  --help               Show this message and exit.
+```
+
+Export by single domain:
+
+```
+hunt.py query export intuit.com
+```
+
+Export all:
+
+```
+hunt.py query export all
+```
+
+Export all, filtering only mcafee categorizations:
+
+```
+hunt.py query export all -p mcafee
+```
 
 ## Adding New Categorization Services
 
