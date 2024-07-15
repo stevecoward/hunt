@@ -63,9 +63,10 @@ def refresh():
 @click.option('-t', '--trendmicro', is_flag=True, default=False, help='Check Trendmicro')
 @click.option('-m', '--mcafee', is_flag=True, default=False, help='Check McAfee')
 @click.option('-b', '--bluecoat', is_flag=True, default=False, help='Check Bluecoat')
+@click.option('-c', '--cloudflare', is_flag=True, default=False, help='Check Cloudflare Radar')
 @click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
-def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat):
-    categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat]
+def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare):
+    categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare]
     if all(not option for option in categorization_lookup_options):
         print('Please select a categorization site option or choose --all')
         sys.exit(-1)
@@ -79,10 +80,11 @@ def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat):
 @click.option('-t', '--trendmicro', is_flag=True, default=False, help='Check Trendmicro')
 @click.option('-m', '--mcafee', is_flag=True, default=False, help='Check McAfee')
 @click.option('-b', '--bluecoat', is_flag=True, default=False, help='Check Bluecoat')
+@click.option('-c', '--cloudflare', is_flag=True, default=False, help='Check Cloudflare Radar')
 @click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
 @coro
-async def get_from_file(domain_list, all_cats, ibm, trendmicro, mcafee, bluecoat):
-    categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat]
+async def get_from_file(domain_list, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare):
+    categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare]
     if all(not option for option in categorization_lookup_options):
         print('Please select a categorization site option or choose --all')
         sys.exit(-1)

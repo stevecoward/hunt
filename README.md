@@ -11,6 +11,7 @@
   * TrendMicro Site Safety
   * McAfee Site Lookup
   * Bluecoat (via selenium/ChromeDriver)
+  * Cloudflare Radar
 * Database-backed to collect and track categorization changes over time
 
 ## Installation
@@ -45,6 +46,7 @@ Options:
   -t, --trendmicro  Check Trendmicro
   -m, --mcafee      Check McAfee
   -b, --bluecoat    Check Bluecoat
+  -c, --cloudflare  Check Cloudflare Radar
   --help            Show this message and exit.
 ```
 

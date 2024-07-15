@@ -10,7 +10,7 @@ def validate_tag_choices(ctx, param, value):
 
 
 def validate_categorization_providers(ctx, param, value):
-    providers = ['bluecoat', 'ibm-xforce', 'mcafee', 'trendmicro']
+    providers = ['bluecoat', 'ibm-xforce', 'mcafee', 'trendmicro', 'cloudflare']
     if value not in providers:
         raise click.BadParameter(f'please select from the following providers: {", ".join(providers)}')
     return value
