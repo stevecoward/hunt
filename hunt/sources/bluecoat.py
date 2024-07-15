@@ -30,14 +30,7 @@ class BluecoatRequestData:
         
         try:
             category_first = self.driver.find_element(By.XPATH, '//*[@id="submissionForm"]/span/span[1]/div/div[2]/span[1]/span')
-            category_second = self.driver.find_element(By.XPATH, '//*[@id="submissionForm"]/span/span[1]/div/div[2]/span[2]/span')
-            if category_second:
-                if 'Last Time' in category_second.text:
-                    category = category_first.text
-                else:
-                    category = category_first.text + '|' + category_second.text
-            else:
-                category = category_first.text
+            category = category_first.text
         except:
             category = 'error'
 
