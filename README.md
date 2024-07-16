@@ -230,7 +230,7 @@ With these changes, a new categorization site can be added to the project and ca
 
 This pertains to using IBM X-Force's API. It requires an IBM ID to use, and the current free trial is for 30 days. I use a disposable email address to set up the account initially and access my API tokens with that account. When using the X-Force categorization source with `hunt`, a notice will appear in the console reminding the user of this fact.
 
-In order to safely scrape from Bluecoat Site Review, selenium is used. This requires ChromeDriver to be installed in order to use. For Windows, add the path to chromedriver.exe to `config.py` variable 'CHROMEDRIVER_PATH'. This should not apply to macOS and Linux hosts.
+In order to safely scrape from Bluecoat Site Review, selenium is used. This requires [ChromeDriver](https://googlechromelabs.github.io/chrome-for-testing/) to be installed in order to use. For Windows, add the path to chromedriver.exe to `config.py` variable 'CHROMEDRIVER_PATH'. This should not apply to macOS and Linux hosts.
 
 ## TODO
 
