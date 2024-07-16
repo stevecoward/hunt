@@ -1,3 +1,4 @@
+import logging
 import re
 from hunt.utils.requests import RequestData
 
@@ -22,6 +23,7 @@ class TrendMicroRequestData(RequestData):
         # get / first
         response = await self.async_client.get(self.url)
         if response.status_code != 200:
+            logging.warning(f'got HTTP {response.status_code} response fetching base URL')
             return category
         
         # get intermediary request
@@ -40,6 +42,8 @@ class TrendMicroRequestData(RequestData):
                 if element_class == category_class:
                     category_tmp = search[1] if search else 'Bad Match'
             category = category_tmp
+        else:
+            logging.warning(f'got HTTP {response.status_code} response fetching results')
         
         return {
             'name': self.name,

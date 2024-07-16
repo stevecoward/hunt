@@ -1,3 +1,4 @@
+import logging
 from bs4 import BeautifulSoup
 from hunt.utils.requests import RequestData
 
@@ -25,6 +26,7 @@ class McAfeeRequestData(RequestData):
 
         response = await self.async_client.get(self.url)
         if response.status_code != 200:
+            logging.warning(f'got HTTP {response.status_code} response fetching base URL')
             return category
 
         content = BeautifulSoup(response.content, 'html.parser')
@@ -45,6 +47,7 @@ class McAfeeRequestData(RequestData):
         
         response = await self.async_client.post(self.lookup_url, files=request_params)
         if response.status_code != 200:
+            logging.warning(f'got HTTP {response.status_code} response fetching results')
             return category
 
         content = BeautifulSoup(response.content, 'html.parser')
