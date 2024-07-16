@@ -1,4 +1,5 @@
 import base64
+import logging
 from hunt.utils.requests import RequestData
 
 
@@ -18,6 +19,7 @@ class IbmXforceRequestData(RequestData):
         
         response = await self.async_client.get(self.url, timeout=20)
         if response.status_code != 200:
+            logging.warning(f'got HTTP {response.status_code} response fetching results')
             return {
                 'name': self.name,
                 'category': category,
