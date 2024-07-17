@@ -217,7 +217,7 @@ Next, modify `hunt.py` and add to the `shared_options` decorator:
 click.option('-c', '--categorizationsite', is_flag=True, default=False, help='Check Categorization Site')
 ```
 
-Then, modify the function parameters for `get_categorizations` and `get_from_file` functions:
+Then, modify the function parameters for `get_categorizations` function:
 ```python
 async def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare, categorizationsite):
     categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare, categorizationsite]
