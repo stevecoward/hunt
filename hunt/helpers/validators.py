@@ -1,4 +1,5 @@
 import click
+import sys
 from hunt.helpers import is_initialized
 
 
@@ -20,4 +21,3 @@ def check_initialized(ctx, param, value):
     if not is_initialized():
         raise click.UsageError('hunt is not initialized. please run "command init" first.')
     return value
-

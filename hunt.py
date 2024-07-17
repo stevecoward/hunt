@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-import argparse
 import asyncio
 import click
 from functools import wraps
 import logging
+import os
 import sys
-from hunt.helpers.click_validators import check_initialized, validate_tag_choices, validate_categorization_providers
+from hunt.helpers.validators import check_initialized, validate_tag_choices, validate_categorization_providers
 from hunt.helpers.domain import DomainHelper
 from hunt.helpers.domain_categorization import DomainCategorizationHelper
 from hunt.helpers.lookup import LookupHelper
@@ -75,35 +75,26 @@ def refresh():
 
 
 @click.command()
-@click.argument('domain', required=True)
-@click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
-@shared_options
-def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare):
-    categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare]
-    if all(not option for option in categorization_lookup_options):
-        print('Please select a categorization site option or choose --all')
-        sys.exit(-1)
-    asyncio.run(LookupHelper.lookup(domain, categorization_lookup_options))
-
-
-@click.command()
-@click.argument('domain-list', type=click.File('r'), required=True)
+@click.argument('domain', required=True, help='either a domain string or a path to a list of domains to target')
 @click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
 @shared_options
 @coro
-async def get_from_file(domain_list, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare):
+async def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare):
     categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare]
     if all(not option for option in categorization_lookup_options):
         print('Please select a categorization site option or choose --all')
         sys.exit(-1)
-    
-    domains = domain_list.read()
-    domains = list(filter(None, domains.split('\n')))
-    tasks = []
 
-    for domain in domains:
-        tasks.append(asyncio.create_task(LookupHelper.lookup(domain, categorization_lookup_options)))
-    await asyncio.gather(*tasks)
+    if os.path.isfile(domain):
+        tasks = []
+        with open(domain, 'r') as fh:
+            domains = fh.read()
+            domains = list(filter(None, domains.split('\n')))
+        for domain in domains:
+            tasks.append(asyncio.create_task(LookupHelper.lookup(domain, categorization_lookup_options)))
+        await asyncio.gather(*tasks)
+    else:
+        await LookupHelper.lookup(domain, categorization_lookup_options)
 
 
 @click.group()
@@ -157,7 +148,6 @@ command.add_command(init)
 command.add_command(add_domain)
 command.add_command(refresh)
 command.add_command(get_categorizations)
-command.add_command(get_from_file)
 
 query.add_command(domain_categories_filter)
 query.add_command(domain_categories)

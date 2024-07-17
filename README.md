@@ -35,7 +35,7 @@ This establishes a folder on disk where the hunt database is stored. For Windows
 
 ### get-categorizations
 
-This is the main component of the tool. It accepts a domain name and some boolean options for which categorization sites to check:
+This is the main component of the tool. It accepts a domain name or a file of domains and some boolean options for which categorization sites to check:
 
 ```
 Usage: hunt.py command get-categorizations [OPTIONS] DOMAIN
@@ -64,10 +64,6 @@ On the backend, asynchronous tasks are created for each selected (or all) catego
 │ intuit.com │ mcafee     │ Internet Services                │ 2024-07-02 11:22:50 │
 └────────────┴────────────┴──────────────────────────────────┴─────────────────────┘
 ```
-
-### get-from-file
-
-This is the same as `get-categorizations`, only instead of a single domain, a file of domains can be used to perform lookups against.
 
 ### add-domain
 
@@ -223,10 +219,7 @@ click.option('-c', '--categorizationsite', is_flag=True, default=False, help='Ch
 
 Then, modify the function parameters for `get_categorizations` and `get_from_file` functions:
 ```python
-def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare, categorizationsite):
-    categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare, categorizationsite]
-
-async def get_from_file(domain_list, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare, categorizationsite):
+async def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare, categorizationsite):
     categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare, categorizationsite]
 ```
 
