@@ -1,9 +1,9 @@
+import logging
 from bs4 import BeautifulSoup
 from hunt.utils.requests import RequestData
 
 class CloudflareRadarRequestData(RequestData):
     base_url = 'https://radar.cloudflare.com/domains/feedback'
-    lookup_url = f'{base_url}/en/feedback/url'
     name = 'cloudflare'
     
     def __init__(self):
@@ -25,6 +25,7 @@ class CloudflareRadarRequestData(RequestData):
 
         response = await self.async_client.get(f'{self.url}/{target_domain}')
         if response.status_code != 200:
+            logging.warning(f'got HTTP {response.status_code} response fetching results')
             return category
 
         content = BeautifulSoup(response.content, 'html.parser')
@@ -37,7 +38,7 @@ class CloudflareRadarRequestData(RequestData):
             else:
                 category = tags[0].text
         except Exception as e:
-            pass
+            logging.warning(f'error getting category text. check classes for HTML parsing')
     
         await self.async_client.aclose()
 

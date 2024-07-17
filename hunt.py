@@ -3,6 +3,7 @@ import argparse
 import asyncio
 import click
 from functools import wraps
+import logging
 import sys
 from hunt.helpers.click_validators import check_initialized, validate_tag_choices, validate_categorization_providers
 from hunt.helpers.domain import DomainHelper
@@ -10,6 +11,9 @@ from hunt.helpers.domain_categorization import DomainCategorizationHelper
 from hunt.helpers.lookup import LookupHelper
 from hunt.models.domain import Domain
 from hunt.utils.hunt_db import HuntDb
+
+
+logging.basicConfig(level=logging.WARNING, format='%(levelname)s - %(module)s - %(message)s')
 
 
 def coro(f):

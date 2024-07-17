@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -32,7 +33,7 @@ class BluecoatRequestData:
             category_first = self.driver.find_element(By.XPATH, '//*[@id="submissionForm"]/span/span[1]/div/div[2]/span[1]/span')
             category = category_first.text
         except:
-            category = 'error'
+            logging.warning(f'error getting category text from span element')
 
         return {
             'name': self.name,
