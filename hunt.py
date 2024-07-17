@@ -24,20 +24,6 @@ def coro(f):
     return wrapper
 
 
-def shared_options(f):
-    options = [
-        click.option('-a', '--all-cats', is_flag=True, default=False, help='Check with all providers'),
-        click.option('-i', '--ibm', is_flag=True, default=False, help='Check IBM X-Force'),
-        click.option('-t', '--trendmicro', is_flag=True, default=False, help='Check Trendmicro'),
-        click.option('-m', '--mcafee', is_flag=True, default=False, help='Check McAfee'),
-        click.option('-b', '--bluecoat', is_flag=True, default=False, help='Check Bluecoat'),
-        click.option('-c', '--cloudflare', is_flag=True, default=False, help='Check Cloudflare Radar')
-    ]
-    for option in options:
-        f = option(f)
-    return f
-
-
 @click.group()
 @click.pass_context
 def cli(ctx):
@@ -75,9 +61,14 @@ def refresh():
 
 
 @click.command()
-@click.argument('domain', required=True, help='either a domain string or a path to a list of domains to target')
+@click.argument('domain', required=True, metavar='DOMAIN_OR_FILE')
+@click.option('-a', '--all-cats', is_flag=True, default=False, help='Check with all providers')
+@click.option('-i', '--ibm', is_flag=True, default=False, help='Check IBM X-Force')
+@click.option('-t', '--trendmicro', is_flag=True, default=False, help='Check Trendmicro')
+@click.option('-m', '--mcafee', is_flag=True, default=False, help='Check McAfee')
+@click.option('-b', '--bluecoat', is_flag=True, default=False, help='Check Bluecoat')
+@click.option('-c', '--cloudflare', is_flag=True, default=False, help='Check Cloudflare Radar')
 @click.option('--initialize', is_flag=True, callback=check_initialized, expose_value=False, hidden=True)
-@shared_options
 @coro
 async def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare):
     categorization_lookup_options = [all_cats, ibm, trendmicro, mcafee, bluecoat, cloudflare]
