@@ -21,7 +21,7 @@ This is a Python3 project. Install dependencies with: `pip -r requirements.txt`
 To begin using hunt, run the `init` command to setup the local database:
 
 ```
-python hunt.py init
+python hunt.py command init
 ```
 
 ## Commands
