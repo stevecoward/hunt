@@ -30,11 +30,6 @@ def cli(ctx):
     pass
 
 
-@click.group()
-def command():
-    pass
-
-
 @click.command()
 def init():
     hunt_db = HuntDb()
@@ -135,11 +130,6 @@ def export(domain, provider=None):
     DomainCategorizationHelper.export(domain, provider)
 
 
-command.add_command(init)
-command.add_command(add_domain)
-command.add_command(refresh)
-command.add_command(get_categorizations)
-
 query.add_command(domain_categories_filter)
 query.add_command(domain_categories)
 query.add_command(recent)
@@ -147,7 +137,12 @@ query.add_command(tag)
 query.add_command(get_domains)
 query.add_command(export)
 
-cli.add_command(command)
+
+cli.add_command(init)
+cli.add_command(add_domain)
+cli.add_command(refresh)
+cli.add_command(get_categorizations)
+
 cli.add_command(query)
 
 

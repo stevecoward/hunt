@@ -21,7 +21,7 @@ This is a Python3 project. Install dependencies with: `pip -r requirements.txt`
 To begin using hunt, run the `init` command to setup the local database:
 
 ```
-python hunt.py command init
+python hunt.py init
 ```
 
 ## Commands
@@ -38,7 +38,7 @@ This establishes a folder on disk where the hunt database is stored. For Windows
 This is the main component of the tool. It accepts a domain name or a file of domains and some boolean options for which categorization sites to check:
 
 ```
-Usage: hunt.py command get-categorizations [OPTIONS] DOMAIN
+Usage: hunt.py get-categorizations [OPTIONS] DOMAIN_OR_FILE
 
 Options:
   -a, --all-cats    Check with all providers
@@ -53,7 +53,7 @@ Options:
 On the backend, asynchronous tasks are created for each selected (or all) categorization sites, and hunt performs scraping of data and returns the results as a table:
 
 ```
-> python hunt.py command get-categorizations intuit.com -a
+> python hunt.py get-categorizations intuit.com -a
 
                                Recent Categorizations
 ┏━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
@@ -70,7 +70,7 @@ On the backend, asynchronous tasks are created for each selected (or all) catego
 This command adds a domain or updates a domain in the database. It takes a name, optional registrar, and a tag with the default set of options defined in the `tag` command:
 
 ```
-Usage: hunt.py command add-domain [OPTIONS] DOMAIN TAG [REGISTRAR]
+Usage: hunt.py add-domain [OPTIONS] DOMAIN TAG [REGISTRAR]
 
 Options:
   --help  Show this message and exit.
@@ -221,6 +221,8 @@ async def get_categorizations(domain, all_cats, ibm, trendmicro, mcafee, bluecoa
 With these changes, a new categorization site can be added to the project and can be called from the utility.
 
 ## Caveats
+
+It's likely that over time, these methods of grabbing domain categories will break due to anti-bot implementation. That's the way it goes. I may not be able to maintain these providers long-term but I'll do my best. You can always specify which categorization providers individually when using the `get-categorizations` command by passing the boolean options for working categorization sites, e.g. `get-categorizations -i -t -b intuit.com`.
 
 This pertains to using IBM X-Force's API. It requires an IBM ID to use, and the current free trial is for 30 days. I use a disposable email address to set up the account initially and access my API tokens with that account. When using the X-Force categorization source with `hunt`, a notice will appear in the console reminding the user of this fact.
 
