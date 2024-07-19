@@ -1,23 +1,15 @@
 import asyncio
 import logging
-import os
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from hunt import config
+from hunt.utils.webdriver import WebDriver
 
 
-class BluecoatRequestData:
+class BluecoatRequestData(WebDriver):
     base_url = 'https://sitereview.bluecoat.com/#/'
     name = 'bluecoat'
     
     def __init__(self):
-        service = Service(config.CHROMEDRIVER_PATH)
-        
-        if os.name == 'nt':
-            self.driver = webdriver.Chrome(service=service)
-        else:
-            self.driver = webdriver.Chrome()
+        super(BluecoatRequestData, self).__init__()
     
 
     async def check(self, target_domain):

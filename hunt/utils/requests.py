@@ -6,7 +6,6 @@ from hunt import config
 random_ua = lambda: random.choice(config.HTTP_USER_AGENTS)
 global_headers = {
     'User-Agent': random_ua(),
-    'X-Requested-With': 'XMLHttpRequest',
     'Sec-Fetch-Site': 'same-origin',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Dest': 'empty',
